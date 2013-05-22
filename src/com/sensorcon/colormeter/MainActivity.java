@@ -40,6 +40,8 @@ public class MainActivity extends Activity {
 	private TextView tv_g;
 	private TextView tv_b;
 	private TextView tv_lux;
+	private TextView tvConnected;
+	private TextView tvNotConnected;
 	private ImageButton streamButtonOn;
 	private ImageButton streamButtonOff;
 	private ImageButton ssButtonOn;
@@ -78,6 +80,9 @@ public class MainActivity extends Activity {
 		tv_g = (TextView)findViewById(R.id.g);
 		tv_b = (TextView)findViewById(R.id.b);
 		tv_lux = (TextView)findViewById(R.id.value_lux);
+		tvConnected = (TextView)findViewById(R.id.label_connected);
+		tvNotConnected = (TextView)findViewById(R.id.label_not_connected);
+		
 		lensClosed = (ImageView)findViewById(R.id.lens_closed);
 		lensOpen = (ImageView)findViewById(R.id.lens_open);
 		ledOff = (ImageView)findViewById(R.id.led_off);
@@ -92,6 +97,7 @@ public class MainActivity extends Activity {
 		ssButtonOn.setVisibility(View.GONE);
 		streamButtonOn.setVisibility(View.GONE);
 		ledOn.setVisibility(View.GONE);
+		tvConnected.setVisibility(View.GONE);
 		
 		streamMode = false;
 		ledIsOn = false;
@@ -285,6 +291,9 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 				
+				tvConnected.setVisibility(View.GONE);
+				tvNotConnected.setVisibility(View.VISIBLE);
+				
 				if(streamMode) {
 					streamMode = false;
 				}
@@ -360,6 +369,9 @@ public class MainActivity extends Activity {
 		public void run() {
 			if(myDrone.isConnected) {
 				if(streamMode) {
+					lensOpen.setVisibility(View.VISIBLE);
+					lensClosed.setVisibility(View.GONE);
+					
 					ledHandler.postDelayed(this, 750);
 					
 					if(ledIsOn) {
@@ -455,6 +467,9 @@ public class MainActivity extends Activity {
 					// Turn on our blinker
 					myBlinkerG.enable();
 					myBlinkerG.run();
+					
+					tvNotConnected.setVisibility(View.GONE);
+					tvConnected.setVisibility(View.VISIBLE);
 				}
 
 
