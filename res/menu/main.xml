@@ -3,5 +3,6 @@
      <item android:id="@+id/connect" android:title="Connect"></item>
      <item android:id="@+id/reconnect" android:title="Re-Connect"></item>
   <item android:id="@+id/disconnect" android:title="Disconnect"></item>
+   <item android:id="@+id/instructions" android:title="Instructions"></item>
 
 </menu>

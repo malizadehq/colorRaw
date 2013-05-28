@@ -3,6 +3,7 @@ package com.sensorcon.colormeter;
 import java.util.EventObject;
 
 import com.sensorcon.sdhelper.ConnectionBlinker;
+import com.sensorcon.sdhelper.OnOffRunnable;
 import com.sensorcon.sdhelper.SDHelper;
 import com.sensorcon.sdhelper.SDStreamer;
 import com.sensorcon.sensordrone.Drone;
@@ -14,8 +15,14 @@ import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +37,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+	
+	static String LAST_MAC = "LAST_MAC";
+	static String DISABLE_INTRO = "DISABLE_INTRO";
+	private SharedPreferences preferences;
+	
+	private int api;
+	private final int NEW_API = 0;
+	private final int OLD_API = 1;
 	
 	private int lux;
 	private int red;
@@ -76,6 +91,16 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		// Check to see if API supports swipe views and fragments
+		if (android.os.Build.VERSION.SDK_INT < 13) {
+		    api = OLD_API;
+		} else {
+			api = NEW_API;
+		}
+		
+		// Initialize SharedPreferences
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				
 		tv_r = (TextView)findViewById(R.id.r);
 		tv_g = (TextView)findViewById(R.id.g);
 		tv_b = (TextView)findViewById(R.id.b);
@@ -93,11 +118,11 @@ public class MainActivity extends Activity {
 		streamButtonOn = (ImageButton)findViewById(R.id.stream_on);
 		streamButtonOff = (ImageButton)findViewById(R.id.stream_off);
 		
-		lensOpen.setVisibility(View.GONE);
-		ssButtonOn.setVisibility(View.GONE);
-		streamButtonOn.setVisibility(View.GONE);
-		ledOn.setVisibility(View.GONE);
-		tvConnected.setVisibility(View.GONE);
+		lensOpen.setVisibility(View.INVISIBLE);
+		ssButtonOn.setVisibility(View.INVISIBLE);
+		streamButtonOn.setVisibility(View.INVISIBLE);
+		ledOn.setVisibility(View.INVISIBLE);
+		tvConnected.setVisibility(View.INVISIBLE);
 		
 		streamMode = false;
 		ledIsOn = false;
@@ -141,25 +166,53 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+		String disableIntro = preferences.getString(DISABLE_INTRO, "");
+		
+		if(!disableIntro.equals("DISABLE")) {
+			showIntroDialog();
+		}
+		
 		myDrone = new Drone();
 		box = new Storage(this);
 		myHelper = new SDHelper();
 	}
 	
+	/**
+	 * Loads the dialog shown at startup
+	 */
+	public void showIntroDialog() {
+
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+		alert.setCancelable(false);
+		alert.setTitle("Introduction").setMessage("If you are new to the Color Intensity Meter app, you should read through the instructions. To access them, go to the main menu and select Instructions.");
+		alert.setPositiveButton("Don't Show Again", new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		        	Editor prefEditor = preferences.edit();
+					prefEditor.putString(DISABLE_INTRO, "DISABLE");
+					prefEditor.commit();
+		        }
+		     })
+		    .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // do nothing
+		        }
+		     }).show();
+	}
+	
 	public void ssButtonDown() {
 		snapshot();
 		ssButtonOn.setVisibility(View.VISIBLE);
-		ssButtonOff.setVisibility(View.GONE);
+		ssButtonOff.setVisibility(View.INVISIBLE);
 	}
 	
 	public void ssButtonUp() {
-		ssButtonOn.setVisibility(View.GONE);
+		ssButtonOn.setVisibility(View.INVISIBLE);
 		ssButtonOff.setVisibility(View.VISIBLE);
 	}
 	
 	public void streamButtonDown() {
 		streamButtonOn.setVisibility(View.VISIBLE);
-		streamButtonOff.setVisibility(View.GONE);
+		streamButtonOff.setVisibility(View.INVISIBLE);
 		
 		if(!streamMode) {
 			Log.d("chris", "Stream");
@@ -168,7 +221,7 @@ public class MainActivity extends Activity {
 	}
 	
 	public void streamButtonUp() {
-		streamButtonOn.setVisibility(View.GONE);
+		streamButtonOn.setVisibility(View.INVISIBLE);
 		streamButtonOff.setVisibility(View.VISIBLE);
 	}
 	
@@ -236,9 +289,10 @@ public class MainActivity extends Activity {
 			break;
 		case R.id.reconnect:
 			if (!myDrone.isConnected) {
+				String prefLastMAC = preferences.getString(LAST_MAC, "");
 				// This option is used to re-connect to the last connected MAC
-				if (!myDrone.lastMAC.equals("")) {
-					if (!myDrone.btConnect(myDrone.lastMAC)) {
+				if (!prefLastMAC.equals("")) {
+					if (!myDrone.btConnect(prefLastMAC)) {
 						myInfo.connectFail();
 					}
 				} else {
@@ -247,6 +301,16 @@ public class MainActivity extends Activity {
 				} 
 			} else {
 				quickMessage("Already connected...");
+			}
+			break;
+		case R.id.instructions:
+			if(api == NEW_API) {
+				Intent myIntent = new Intent(getApplicationContext(), InstructionsActivity.class);
+				startActivity(myIntent);
+			}
+			else {
+				Intent myIntent = new Intent(getApplicationContext(), InstructionsActivityOld.class);
+				startActivity(myIntent);
 			}
 			break;
 		}
@@ -291,7 +355,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void run() {
 				
-				tvConnected.setVisibility(View.GONE);
+				tvConnected.setVisibility(View.INVISIBLE);
 				tvNotConnected.setVisibility(View.VISIBLE);
 				
 				if(streamMode) {
@@ -299,10 +363,8 @@ public class MainActivity extends Activity {
 				}
 
 				// Turn off myBlinker
-				box.myBlinkerR.disable();
-				box.myBlinkerG.disable();
-				box.myBlinkerB.disable();
-
+				box.myBlinker.disable();
+				
 				// Make sure the LEDs go off
 				if (myDrone.isConnected) {
 					myDrone.setLEDs(0, 0, 0);
@@ -345,7 +407,7 @@ public class MainActivity extends Activity {
 		public void run() {
 			
 			if(count == 0) {
-				lensClosed.setVisibility(View.GONE);
+				lensClosed.setVisibility(View.INVISIBLE);
 				lensOpen.setVisibility(View.VISIBLE);
 				count++;
 				shutterHandler.postDelayed(this, 75);
@@ -354,7 +416,7 @@ public class MainActivity extends Activity {
 			}
 			else if(count == 1) {
 				lensClosed.setVisibility(View.VISIBLE);
-				lensOpen.setVisibility(View.GONE);
+				lensOpen.setVisibility(View.INVISIBLE);
 				shutterHandler.removeCallbacksAndMessages(null);
 				count = 0;
 				
@@ -370,25 +432,25 @@ public class MainActivity extends Activity {
 			if(myDrone.isConnected) {
 				if(streamMode) {
 					lensOpen.setVisibility(View.VISIBLE);
-					lensClosed.setVisibility(View.GONE);
+					lensClosed.setVisibility(View.INVISIBLE);
 					
 					ledHandler.postDelayed(this, 750);
 					
 					if(ledIsOn) {
 						ledIsOn = false;
-						ledOn.setVisibility(View.GONE);
+						ledOn.setVisibility(View.INVISIBLE);
 						ledOff.setVisibility(View.VISIBLE);
 					}
 					else {
 						ledIsOn = true;
 						ledOn.setVisibility(View.VISIBLE);
-						ledOff.setVisibility(View.GONE);
+						ledOff.setVisibility(View.INVISIBLE);
 					}
 				}
 				else {
 					if(ledIsOn) {
 						ledIsOn = false;
-						ledOn.setVisibility(View.GONE);
+						ledOn.setVisibility(View.INVISIBLE);
 						ledOff.setVisibility(View.VISIBLE);
 					}
 					ledHandler.removeCallbacksAndMessages(null);
@@ -414,9 +476,7 @@ public class MainActivity extends Activity {
 	public final class Storage {
 
 		// A ConnectionBLinker from the SDHelper Library
-		public ConnectionBlinker myBlinkerR;
-		public ConnectionBlinker myBlinkerG;
-		public ConnectionBlinker myBlinkerB;
+		public CustomConnectionBlinker myBlinker;
 
 		// Holds the sensor of interest - the CO precision sensor
 		public int sensor;
@@ -440,9 +500,7 @@ public class MainActivity extends Activity {
 			sensor = myDrone.QS_TYPE_RGBC;
 
 			// This will Blink our Drone, once a second, Blue
-			myBlinkerR = new ConnectionBlinker(myDrone, 1000, 255, 0, 0);
-			myBlinkerG = new ConnectionBlinker(myDrone, 1000, 0, 255, 0);
-			myBlinkerB = new ConnectionBlinker(myDrone, 1000, 0, 0, 255);
+			myBlinker = new CustomConnectionBlinker(myDrone, 1000, 255, 255, 255);
 
 			streamer = new SDStreamer(myDrone, sensor);
 
@@ -461,14 +519,18 @@ public class MainActivity extends Activity {
 
 					streamer.enable();
 					myDrone.quickEnable(sensor);
+					
+					Editor prefEditor = preferences.edit();
+					prefEditor.putString(LAST_MAC, myDrone.lastMAC);
+					prefEditor.commit();
 
 					// Flash teh LEDs green
 					myHelper.flashLEDs(myDrone, 3, 100, 0, 0, 22);
 					// Turn on our blinker
-					myBlinkerG.enable();
-					myBlinkerG.run();
+					myBlinker.enable();
+					myBlinker.run();
 					
-					tvNotConnected.setVisibility(View.GONE);
+					tvNotConnected.setVisibility(View.INVISIBLE);
 					tvConnected.setVisibility(View.VISIBLE);
 				}
 
@@ -476,9 +538,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void connectionLostEvent(EventObject arg0) {
 					// Turn off the blinker
-					myBlinkerR.disable();
-					myBlinkerG.disable();
-					myBlinkerB.disable();
+					myBlinker.disable();
 					
 					quickMessage("Connection lost! Trying to re-connect!");
 
@@ -512,33 +572,7 @@ public class MainActivity extends Activity {
 				
 				@Override
 				public void rgbcMeasured(EventObject arg0) {
-					if (myDrone.rgbcLux >= 0) {
-						lux = (int)myDrone.rgbcLux;
-					}
-					else {
-						lux = 0;
-					}
 					
-					if (myDrone.rgbcRedChannel >= 0) {
-						red = (int)myDrone.rgbcRedChannel;
-					}
-					else {
-						red = 0;
-					}
-					
-					if (myDrone.rgbcGreenChannel >= 0) {
-						green = (int)myDrone.rgbcGreenChannel;
-					}
-					else {
-						green = 0;
-					}
-					
-					if (myDrone.rgbcBlueChannel >= 0) {
-						blue = (int)myDrone.rgbcBlueChannel;
-					}
-					else {
-						blue = 0;
-					}
 					
 					streamer.streamHandler.postDelayed(streamer, 100);
 					
@@ -631,6 +665,121 @@ public class MainActivity extends Activity {
 			// Register the listeners
 			myDrone.registerDroneEventListener(droneEventListener);
 			myDrone.registerDroneStatusListener(droneStatusListener);
+		}
+	}
+	
+	/**
+	 * This is a class that will blink the LEDs at a defined interval
+	 *
+	 */
+	public class CustomConnectionBlinker implements OnOffRunnable {
+
+		// Settings and such
+		private Drone myDrone;
+		private boolean onOff;
+		private boolean LEDonOff;
+		private int rate;
+		private Handler blinkHandler = new Handler();
+		private int myRed;
+		private int myGreen;
+		private int myBlue;
+
+		/*
+		 * Our constructor sets all of the dettings, but we provide methods to chang them later as well.
+		 */
+		public CustomConnectionBlinker(Drone drone, int msDelay, int Red, int Green, int Blue) {
+			myDrone = drone;
+			rate = msDelay;
+			myRed = Red;
+			myGreen = Green;
+			myBlue = Blue;
+		}
+
+		/*
+		 * Set the rate
+		 */
+		public void setRate(int msDelay) {
+			rate = msDelay;
+		}
+		
+		/*
+		 * Set the LED colors
+		 */
+		public void setColors(int Red, int Green, int Blue){
+			myRed = Red;
+			myGreen = Green;
+			myBlue = Blue;
+		}
+
+
+		@Override
+		public void run() {
+			// Are we enabled?
+			if (onOff) {
+				// Toggle
+				if (LEDonOff) {
+					myDrone.setLEDs(myRed, myGreen, myBlue);
+				} else {
+					myDrone.setLEDs(0, 0, 0);
+				}
+				
+				LEDonOff = !LEDonOff; // Flip-Flop
+				
+				if(!LEDonOff) {
+						
+					if (myDrone.rgbcLux >= 0) {
+						lux = (int)myDrone.rgbcLux;
+					}
+					else {
+						lux = 0;
+					}
+					
+					if (myDrone.rgbcRedChannel >= 0) {
+						red = (int)myDrone.rgbcRedChannel;
+					}
+					else {
+						red = 0;
+					}
+					
+					if (myDrone.rgbcGreenChannel >= 0) {
+						green = (int)myDrone.rgbcGreenChannel;
+					}
+					else {
+						green = 0;
+					}
+					
+					if (myDrone.rgbcBlueChannel >= 0) {
+						blue = (int)myDrone.rgbcBlueChannel;
+					}
+					else {
+						blue = 0;
+					}
+					
+					Log.d("chris","RED: " + Integer.toString(red));
+					Log.d("chris","GREEN: " + Integer.toString(green));
+					Log.d("chris","BLUE: " + Integer.toString(blue));
+				}
+				
+				// Do again at specified rate
+				blinkHandler.postDelayed(this, rate);
+			}
+		}
+
+		@Override
+		public void disable() {
+			onOff = false; // Disable
+			
+			// Shut down the handler
+			blinkHandler.removeCallbacksAndMessages(null);
+			
+			// Make sure the LEDs are off (in case we were disabled mid-blink).
+			myDrone.setLEDs(0, 0, 0);
+		}
+
+		@Override
+		public void enable() {
+			onOff = true; // Enable
+			LEDonOff = true; // Set ready to blink on
 		}
 	}
 }

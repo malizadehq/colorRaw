@@ -20,7 +20,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
         android:textColor="#FFFFFF"
-        android:textSize="50dp"
+        android:textSize="75dp"
         android:textStyle="bold"
         android:text="Connected" />
     
@@ -31,7 +31,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
         android:textColor="#FFFFFF"
-        android:textSize="50dp"
+        android:textSize="75dp"
         android:textStyle="bold"
         android:text="Not Connected" />
 
@@ -50,7 +50,10 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_centerHorizontal="true"
-	        android:layout_marginTop="40dp"
+	        android:layout_marginTop="50dp"
+	        android:adjustViewBounds="true"  
+		    android:maxWidth="200dp"    
+		    android:scaleType="fitCenter"  
 	        android:src="@drawable/lense_closed" />
         
          <ImageView
@@ -58,7 +61,10 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_centerHorizontal="true"
-	        android:layout_marginTop="40dp"
+	        android:layout_marginTop="50dp"
+	        android:adjustViewBounds="true"  
+		    android:maxWidth="200dp"    
+		    android:scaleType="fitCenter" 
 	        android:src="@drawable/lense_open" />
 	
 	    <TextView
@@ -69,7 +75,7 @@
 	        android:layout_marginTop="10dp"
 	        android:text="R: 0"
 	        android:textColor="#FF0000"
-	        android:textSize="40dp" />
+	        android:textSize="60dp" />
 	
 	    <TextView
 	        android:id="@+id/g"
@@ -80,7 +86,7 @@
 	        android:layout_marginTop="10dp"
 	        android:text="G: 0"
 	        android:textColor="#00BB00"
-	        android:textSize="40dp" />
+	        android:textSize="60dp" />
 	
 	    <TextView
 	        android:id="@+id/b"
@@ -91,7 +97,7 @@
 	        android:layout_marginTop="10dp"
 	        android:text="B: 0"
 	        android:textColor="#0000BB"
-	        android:textSize="40dp" />
+	        android:textSize="60dp" />
 	
 	    <TextView
 	        android:id="@+id/label_lux"
@@ -101,7 +107,7 @@
 	        android:layout_marginTop="10dp"
 	        android:text="LUX:"
 	        android:textColor="#FFFFFF"
-	        android:textSize="50dp" />
+	        android:textSize="75dp" />
 	
 	    <TextView
 	        android:id="@+id/value_lux"
@@ -112,79 +118,101 @@
 	        android:layout_marginTop="10dp"
 	        android:text="0"
 	        android:textColor="#FFFFFF"
-	        android:textSize="50dp" />
-
-	    <ImageButton
-	        android:id="@+id/stream_off"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:background="@null"
-	        android:layout_alignParentRight="true"
-	        android:layout_marginRight="75dp"
-	        android:layout_marginTop="225dp"
-	        android:src="@drawable/s_1" />
+	        android:textSize="75dp" />
 	    
-	    <ImageButton
-	        android:id="@+id/stream_on"
+	    <RelativeLayout
+	         android:id="@+id/button_layout"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:background="@null"
-	        android:layout_alignParentRight="true"
-	        android:layout_marginRight="75dp"
-	        android:layout_marginTop="225dp"
-	        android:src="@drawable/s_2" />
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="250dp">
+	        
+	        <ImageButton
+		        android:id="@+id/snapshot_off"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@null"
+		       android:adjustViewBounds="true"  
+			    android:maxWidth="200dp"    
+			    android:scaleType="fitCenter" 
+		        android:src="@drawable/ss_1" />
+	        
+	         <ImageButton
+		        android:id="@+id/snapshot_on"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@null"
+		       android:adjustViewBounds="true"  
+			    android:maxWidth="200dp"    
+			    android:scaleType="fitCenter" 
+		        android:src="@drawable/ss_2" />
+	         
+		    <ImageButton
+		        android:id="@+id/stream_off"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@null"
+		        android:layout_toRightOf="@+id/snapshot_off"
+		        android:layout_marginLeft="75dp"
+		        android:adjustViewBounds="true"  
+			    android:maxWidth="200dp"    
+			    android:scaleType="fitCenter" 
+		        android:src="@drawable/s_1" />
+	        
+		    <ImageButton
+		        android:id="@+id/stream_on"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:background="@null"
+		        android:layout_toRightOf="@+id/snapshot_off"
+		        android:layout_marginLeft="75dp"
+		        android:adjustViewBounds="true"  
+			    android:maxWidth="200dp"    
+			    android:scaleType="fitCenter" 
+		        android:src="@drawable/s_2" />
+	
+		    <TextView
+		        android:id="@+id/snapshot_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignLeft="@+id/snapshot_off"
+		        android:layout_below="@+id/snapshot_off"
+		        android:layout_marginLeft="13dp"
+		        android:textSize="25dp"
+		        android:text="SNAPSHOT" />
+		    
+		    <TextView
+		        android:id="@+id/stream_label"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+			  	android:layout_alignLeft="@+id/stream_off"
+		        android:layout_below="@+id/stream_off"
+		        android:layout_marginLeft="30dp"
+		        android:textSize="25dp"
+		        android:text="STREAM" />
 	    
-	    <ImageButton
-	        android:id="@+id/snapshot_off"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:background="@null"
-	        android:layout_marginLeft="75dp"
-	        android:layout_marginTop="225dp"
-	        android:src="@drawable/ss_1" />
-	    
-	    <ImageButton
-	        android:id="@+id/snapshot_on"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:background="@null"
-	        android:layout_marginLeft="75dp"
-	        android:layout_marginTop="225dp"
-	        android:src="@drawable/ss_2" />
-
-	    <TextView
-	        android:id="@+id/snapshot_label"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="90dp"
-	        android:layout_marginTop="305dp"
-	        android:textSize="25dp"
-	        android:text="SNAPSHOT" />
-	    
-	    <TextView
-	        android:id="@+id/stream_label"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentRight="true"
-	        android:layout_marginRight="105dp"
-	        android:layout_marginTop="305dp"
-	        android:textSize="25dp"
-	        android:text="STREAM" />
+	    </RelativeLayout>
 
 	    <ImageView
 	        android:id="@+id/led_off"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="350dp"
-	        android:layout_marginTop="15dp"
+	        android:layout_toRightOf="@+id/lens_closed"
+	        android:layout_marginTop="20dp"
+	        android:adjustViewBounds="true"  
+		    android:maxWidth="25dp"    
+		    android:scaleType="fitCenter" 
 	        android:src="@drawable/led_off" />
 	    
 	    <ImageView
 	        android:id="@+id/led_on"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="350dp"
-	        android:layout_marginTop="15dp"
+	        android:layout_toRightOf="@+id/lens_closed"
+	        android:layout_marginTop="20dp"
+	        android:adjustViewBounds="true"  
+		    android:maxWidth="25dp"    
+		    android:scaleType="fitCenter" 
 	        android:src="@drawable/led_on" />
 	
 	</RelativeLayout>

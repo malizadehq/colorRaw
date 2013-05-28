@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Color Meter</string>
+    <string name="app_name">Color Intensity Meter</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    
+    <string name="label1">Main Menu</string>
+    <string name="label2">Snapshot</string>
+    <string name="label3">Stream</string>
+    <string name="label4">Data</string>
+    
+    <string name="tab1_string">To connect, select the Connect menu option and choose your Sensordrone from the list. \n\nSelect the Re-Connect menu option to connect to the device you last used. This will also work after the program is closed. \n\nSelect the Disconnect option to disconnect from your Sensordrone.</string>
+    
+    <string name ="tab2_string">Once connected, your Sensordrone will start taking readings using the built in color sensor. Press the left Snapshot button to see the data from the sensors at any given time. Take note that this is raw data, so there are no units. \n\nFor best results, ensure the object you wish to measure completely fills the viewing area of the color/light sensor, and take a snapshot.</string>
+    
+    <string name="tab3_string">If you would rather continuously measure the RGB and lux values instead of taking snapshots, press the Stream button on the right. It is easy to analyze the color of many objects quickly with this mode. To stop streaming, simply hit the Snapshot button.</string>
 
+    <string name ="tab4_string">The lux value is calculated programatically from the raw values. The calculation is based on the red, green, and blue values (RGB). The equation for lux is: \n\nlux = -0.32466*R + 1.57837*G + -0.73191*B \n\nThis is an empirically derived equation based on three types of light bulbs.</string>
 </resources>

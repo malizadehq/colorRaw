@@ -26,6 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+         <activity
+            android:name="com.sensorcon.colormeter.InstructionsActivity"
+            android:label="Instructions"
+            android:screenOrientation="portrait" />
+          <activity
+            android:name="com.sensorcon.colormeter.InstructionsActivityOld"
+            android:label="Instructions"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
