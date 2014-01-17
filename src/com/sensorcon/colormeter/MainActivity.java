@@ -364,7 +364,8 @@ public class MainActivity extends Activity {
 			}
 			break;
 		case R.id.connect:
-			myHelper.scanToConnect(myDrone, MainActivity.this , this, false);
+//			myHelper.scanToConnect(myDrone, MainActivity.this , this, false);
+            myHelper.connectFromPairedDevices(myDrone, this);
 			break;
 		case R.id.reconnect:
 			if (!myDrone.isConnected) {
